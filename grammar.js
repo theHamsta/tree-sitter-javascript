@@ -79,7 +79,7 @@ module.exports = grammar({
       $.this_type
     ),
 
-    paranthesize_type: $ => seq(
+    parenthesized_type: $ => seq(
       '(', $.type, ')'
     ),
 
@@ -155,11 +155,15 @@ module.exports = grammar({
     function_type: $ => seq(
       optional($.type_parameters),
       '(',
-      optional($.parameters_list),
+      optional($.parameter_list),
       ')',
       '=>',
       $.type
     ),
+
+		constructor_type: $ => seq(
+			'new', optional($.type_parameters), '(', optional($.parameter_list), ')', '=>', $.type
+		),
 
     type_query: $ => seq('typeof', $.type_query_expression),
 
@@ -186,7 +190,7 @@ module.exports = grammar({
 
     call_signature: $ => seq(
       optional($.type_parameters),
-      '(', optional($.parameters_list), ')', optional($.type_annotation)
+      '(', optional($.parameter_list), ')', optional($.type_annotation)
     ),
 
     parameter_list: $ => choice(
@@ -240,7 +244,7 @@ module.exports = grammar({
     ),
 
     rest_parameter: $ =>
-      seq(..., $.binding_identifier, optional($.type_annotation)),
+      seq('...', $.binding_identifier, optional($.type_annotation)),
 
     construct_signature: $ => seq(
       'new',
@@ -292,7 +296,16 @@ module.exports = grammar({
     ),
 
     unary_expression: $ => choice(
-      ...,
+			$.postfix_expression,
+			seq('delete', $.unary_expression),
+			seq('void', $.unary_expression),
+			seq('typeof', $.unary_expression),
+			seq('++', $.unary_expression),
+			seq('--', $.unary_expression),
+			seq('+', $.unary_expression),
+			seq('-', $.unary_expression),
+			seq('~', $.unary_expression),
+			seq('!', $.unary_expression),
       '<', $.type, '>', $.unary_expression
     ),
 
@@ -755,6 +768,17 @@ module.exports = grammar({
       'declare', 'module', $.string_literal, '{', declaration_module, '}'
     ),
 
+		// ES6
+
+		identifier_reference: $ => choice(
+			$.identifier,
+			'yield'
+		),
+
+		binding_identifier: $ => choice(
+			$.identifier,
+			'yield'
+		),
 
 
 
