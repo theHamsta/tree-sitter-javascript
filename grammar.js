@@ -142,7 +142,7 @@ module.exports = grammar({
       $.tuple_element_type
     ),
 
-    tuple_element_type: $ => $.type
+    tuple_element_type: $ => $.type,
 
     union_type: $ => seq(
       $.union_or_intersection_type, '|', $.intersection_or_primary_type
@@ -152,7 +152,7 @@ module.exports = grammar({
       $.intersection_or_primary_type, '&', $.primary_type
     ),
 
-    function_type: seq(
+    function_type: $ => seq(
       optional($.type_parameters),
       '(',
       optional($.parameters_list),
@@ -161,7 +161,7 @@ module.exports = grammar({
       $.type
     ),
 
-    type_query: $ => seq('typeof', $.type_query_expression)
+    type_query: $ => seq('typeof', $.type_query_expression),
 
     type_query_expression: $ => choice(
       $.identifier_reference,
@@ -240,7 +240,7 @@ module.exports = grammar({
     ),
 
     rest_parameter: $ =>
-      seq('...', $.binding_identifier, optional($.type_annotation))
+      seq(..., $.binding_identifier, optional($.type_annotation)),
 
     construct_signature: $ => seq(
       'new',
@@ -251,7 +251,7 @@ module.exports = grammar({
 
     index_signature: $ => choice(
       seq('[', $.binding_identifier, ':', 'string', ']', $.type_annotation),
-      seq('[', $.binding_identifier, ':', 'number', ']', $.type_annotation),
+      seq('[', $.binding_identifier, ':', 'number', ']', $.type_annotation)
     ),
 
     method_signature: $ => seq(
@@ -292,12 +292,14 @@ module.exports = grammar({
     ),
 
     unary_expression: $ => choice(
-      ...
+      ...,
       '<', $.type, '>', $.unary_expression
     ),
 
     declaration: $ => choice(
-      ...,
+			$.hoistable_declaration,
+			$.class_declaration,
+			$.lexical_declaration,
       $.interface_declaration,
       $.type_alias_declaration,
       $.enum_declaration
@@ -332,7 +334,7 @@ module.exports = grammar({
     // Functions
 
     function_declaration: $ => choice(
-      seq('function', optional($.binding_identifier), call_signature, '{', $.function_body, '}')
+      seq('function', optional($.binding_identifier), call_signature, '{', $.function_body, '}'),
       seq('function', optional($.binding_identifier), $.call_signature, ';')
     ),
 
@@ -476,7 +478,7 @@ module.exports = grammar({
       $.function_declaration,
       $.generator_declaration,
       $.class_declaration,
-      $.interface-declaration,
+      $.interface_declaration,
       $.type_alias_declaration,
       $.enum_declaration,
       $.namespace_declaration,
@@ -498,48 +500,118 @@ module.exports = grammar({
         $.enum_declaration,
         $.namespace_declaration,
         $.ambient_declaration,
-        $.import_alias_declaration
-      ),
+        $.import_alias_declaration)
+		),
 
-      import_alias_declaration: $ => seq(
-        'import', $.binding_identifier, '=', $.entity_name, ';'
-      ),
+    import_alias_declaration: $ => seq(
+      'import', $.binding_identifier, '=', $.entity_name, ';'
+    ),
 
-      entity_name: $ => choice(
-        $.namespace_name,
-        seq($.namespace_name, '.', $.identifier_reference)
-      ),
+    entity_name: $ => choice(
+      $.namespace_name,
+      seq($.namespace_name, '.', $.identifier_reference)
+    ),
 
-      // Scripts and Modules
+    // Scripts and Modules
 
-      source_file: $ => choice(
-        $.implementation_source_file,
-        $.declaration_source_file
-      ),
+    source_file: $ => choice(
+      $.implementation_source_file,
+      $.declaration_source_file
+    ),
 
-      implementation_source_file: $ => choice(
-        $.implementation_script,
-        $.implementation_module
-      ),
+    implementation_source_file: $ => choice(
+      $.implementation_script,
+      $.implementation_module
+    ),
 
-      declaration_source_file: $ => choice(
-        $.declaration_script,
-        $.declaration_module
-      ),
+    declaration_source_file: $ => choice(
+      $.declaration_script,
+      $.declaration_module
+    ),
 
-      implementation_script: $ => optional($.implementation_script_elements),
+    implementation_script: $ => optional($.implementation_script_elements),
 
-      implementation_script_elements: $ => repeat1(
-        $.implementation_script_element
-      ),
+    implementation_script_elements: $ => repeat1(
+      $.implementation_script_element
+    ),
 
-      implementation_script_element: $ => choice(
-        $.implementation_element,
-        $.ambient_module_declaration
-      ),
+    implementation_script_element: $ => choice(
+      $.implementation_element,
+      $.ambient_module_declaration
+    ),
 
-      implementation_element: $ => choice(
-        $.statement,
+    implementation_element: $ => choice(
+      $.statement,
+      $.lexical_declaration,
+      $.function_declaration,
+      $.generator_declaration,
+      $.class_declaration,
+      $.interface_declaration,
+      $.type_alias_declaration,
+      $.enum_declaration,
+      $.namespace_declaration,
+      $.ambient_declaration,
+      $.import_alias_declaration
+    ),
+
+    declaration_script: $ => optional($.declaration_script_elements),
+
+    declaration_script_elements: $ => repeat1(
+      $.declaration_script_element
+    ),
+
+    declaration_script_element: $ => choice(
+      $.declaration_element,
+      $.ambient_module_declaration
+    ),
+
+    declaration_element: $ => choice(
+      $.interface_declaration,
+      $.type_alias_declaration,
+      $.namespace_declaration,
+      $.ambient_declaration,
+      $.import_alias_declaration
+    ),
+
+    implementation_module: $ => optional($.implementation_module_elements),
+
+    implementation_module_elements: $ => repeat1(
+      implementation_module_element
+    ),
+
+    implementation_module_element: $ => choice(
+      $.implementation_element,
+      $.import_declaration,
+      $.import_alias_declaration,
+      $.import_require_declaration,
+      $.export_implementation_element,
+      $.export_default_implementation_element,
+      $.export_list_declaration,
+      $.export_assignment
+    ),
+
+    declaration_module: $ => optional($.declaration_module_elements),
+
+    declaration_module_elements: $ => repeat1( $.declaration_module_element),
+
+    declaration_module_element: $ => choice(
+      $.declaration_element,
+      $.import_declaration,
+      $.import_alias_declaration,
+      $.export_declaration_element,
+      $.export_default_declaration_element,
+      $.export_list_declaration,
+      $.export_assignment
+    ),
+
+    import_require_declaration: $ => seq(
+      'import', $.binding_identifier, '=', 'require', '(', $.string_literal, ')', ';'
+    ),
+
+    export_implementation_element: $ => seq(
+      'export',
+      choice(
+        $.variable_statement,
         $.lexical_declaration,
         $.function_declaration,
         $.generator_declaration,
@@ -550,208 +622,138 @@ module.exports = grammar({
         $.namespace_declaration,
         $.ambient_declaration,
         $.import_alias_declaration
-      ),
+      )
+    ),
 
-      declaration_script: $ => optional($.declaration_script_elements),
-
-      declaration_script_elements: $ => repeat1(
-        $.declaration_script_element
-      ),
-
-      declaration_script_element: $ => choice(
-        $.declaration_element,
-        $.ambient_module_declaration
-      ),
-
-      declaration_element: $ => choice(
+    export_declaration_element: $ => seq(
+      'export',
+      choice(
         $.interface_declaration,
         $.type_alias_declaration,
-        $.namespace_declaration,
         $.ambient_declaration,
         $.import_alias_declaration
-      ),
-
-      implementation_module: $ => optional($.implementation_module_elements),
-
-      implementation_module_elements: $ => repeat1(
-        implementation_module_element
-      ),
-
-      implementation_module_element: $ => choice(
-        $.implementation_element,
-        $.import_declaration,
-        $.import_alias_declaration,
-        $.import_require_declaration,
-        $.export_implementation_element,
-        $.export_default_implementation_element,
-        $.export_list_declaration,
-        $.export_assignment
-      ),
-
-      declaration_module: optional($.declaration_module_elements),
-
-      declaration_module_elements: $ => repeat1( $.declaration_module_element),
-
-      declaration_module_element: $ => choice(
-        $.declaration_element,
-        $.import_declaration,
-        $.import_alias_declaration,
-        $.export_declaration_element,
-        $.export_default_declaration_element,
-        $.export_list_declaration,
-        $.export_assignment
-      ),
-
-      import_require_declaration: $ => seq(
-        'import', $.binding_identifier, '=', 'require', '(', $.string_literal, ')', ';'
-      ),
-
-      export_implementation_element: $ => seq(
-        'export',
-        choice(
-          $.variable_statement,
-          $.lexical_declaration,
-          $.function_declaration,
-          $.generator_declaration,
-          $.class_declaration,
-          $.interface_declaration,
-          $.type_alias_declaration,
-          $.enum_declaration,
-          $.namespace_declaration,
-          $.ambient_declaration,
-          $.import_alias_declaration
-        )
-      ),
-
-      export_declaration_element: $ => seq(
-        'export',
-        choice(
-          $.interface_declaration,
-          $.type_alias_declaration,
-          $.ambient_declaration,
-          $.import_alias_declaration
-        )
-      ),
-
-      export_default_implementation_element: $ => seq(
-        'export',
-        'default',
-        choice(
-          $.function_declaration,
-          $.generator_declaration,
-          $.class_declaration,
-          seq($.assignment_expression, ';')
-        )
-      ),
-
-      export_default_declaration_element: $ => seq(
-        'export',
-        'default',
-        choice(
-          $.ambient_function_declaration,
-          $.ambient_class_declaration,
-          seq($.identifier_reference, ';')
-        )
-      ),
-
-      export_list_declaration: $ => seq(
-        'export',
-        choice(
-          seq('*', $.from_clause, ';'),
-          seq($.export_clause, $.from_clause, ';'),
-          seq($.export_clause, ';')
-        )
-      ),
-
-      export_assignment: $ => seq(
-        'export', '=', $.identifier_reference, ';'
-      ),
-
-      // Ambients
-
-      ambient_declaration: $ => seq(
-        'declare',
-        choice(
-          $.ambient_variable_declaration,
-          $.ambient_function_declaration,
-          $.ambient_class_declaration,
-          $.ambient_enum_declaration,
-          $.ambient_namespace_declaration
-        )
-      ),
-
-      ambient_variable_declaration: $ => seq(
-        choice('var', 'let', 'const'),
-        $.ambient_binding_list,
-        ';'
-      ),
-
-      ambient_binding_list: $ => commaSep1($.ambient_binding),
-
-      ambient_binding: $ => seq(
-        $.binding_identifier, optional($.type_annotation)
-      ),
-
-      ambient_function_declaration: $ => seq(
-        'function', $.binding_identifier, $.call_signature, ';'
-      ),
-
-      ambient_class_declaration: $ => seq(
-        'class', $.binding_identifier, optional($.type_parameters), $.class_heritage, '{', $.ambient_class_body, '}'
-      ),
-
-      ambient_class_body: $ => optional($.ambient_class_body_elements),
-
-      ambient_class_body_elements: $ => repeat1($.ambient_class_body_element),
-
-      ambient_class_body_element: $ => choice(
-        $.ambient_constructor_declaration,
-        $.ambient_property_member_declaration,
-        $.index_signature
-      ),
-
-      ambient_constructor_declaration: $ => seq(
-        'constructor', '(', optional($.parameter_list), ')', ';'
-      ),
-
-      ambient_property_member_declaration: $ => seq(
-        optional($.accessibility_modifier),
-        optional('static'),
-        $.property_name,
-        choice(
-          optional($.type_annotation),
-          $.call_signature
-        ),
-        ';'
-      ),
-
-      ambient_enum_declaration: $ => $.enum_declaration,
-
-      ambient_namespace_declaration: $ => seq(
-        'namespace', $.identifier_path, '{', $.ambient_namespace_body, '}'
-      ),
-
-      ambient_namespace_body: $ => optional($.ambient_namespace_elements),
-
-      ambient_namespace_elements: $ => repeat1($.namespace_element),
-
-      ambient_namespace_element: $ => seq(
-        optional('export'),
-        choice(
-          $.ambient_variable_declaration,
-          $.ambient_lexical_declaration,
-          $.ambient_function_declaration,
-          $.ambient_class-declaration,
-          $.interface_declaration,
-          $.ambient_enum_declaration,
-          $.ambient_namespace_declaration,
-          $.import_alias_declaration
-        )
-      ),
-
-      ambient_module_declaration: $ => seq(
-        'declare', 'module', $.string_literal, '{', declaration_module, '}'
       )
+    ),
+
+    export_default_implementation_element: $ => seq(
+      'export',
+      'default',
+      choice(
+        $.function_declaration,
+        $.generator_declaration,
+        $.class_declaration,
+        seq($.assignment_expression, ';')
+      )
+    ),
+
+    export_default_declaration_element: $ => seq(
+      'export',
+      'default',
+      choice(
+        $.ambient_function_declaration,
+        $.ambient_class_declaration,
+        seq($.identifier_reference, ';')
+      )
+    ),
+
+    export_list_declaration: $ => seq(
+      'export',
+      choice(
+        seq('*', $.from_clause, ';'),
+        seq($.export_clause, $.from_clause, ';'),
+        seq($.export_clause, ';')
+      )
+    ),
+
+    export_assignment: $ => seq(
+      'export', '=', $.identifier_reference, ';'
+    ),
+
+    // Ambients
+
+    ambient_declaration: $ => seq(
+      'declare',
+      choice(
+        $.ambient_variable_declaration,
+        $.ambient_function_declaration,
+        $.ambient_class_declaration,
+        $.ambient_enum_declaration,
+        $.ambient_namespace_declaration
+      )
+    ),
+
+    ambient_variable_declaration: $ => seq(
+      choice('var', 'let', 'const'),
+      $.ambient_binding_list,
+      ';'
+    ),
+
+    ambient_binding_list: $ => commaSep1($.ambient_binding),
+
+    ambient_binding: $ => seq(
+      $.binding_identifier, optional($.type_annotation)
+    ),
+
+    ambient_function_declaration: $ => seq(
+      'function', $.binding_identifier, $.call_signature, ';'
+    ),
+
+    ambient_class_declaration: $ => seq(
+      'class', $.binding_identifier, optional($.type_parameters), $.class_heritage, '{', $.ambient_class_body, '}'
+    ),
+
+    ambient_class_body: $ => optional($.ambient_class_body_elements),
+
+    ambient_class_body_elements: $ => repeat1($.ambient_class_body_element),
+
+    ambient_class_body_element: $ => choice(
+      $.ambient_constructor_declaration,
+      $.ambient_property_member_declaration,
+      $.index_signature
+    ),
+
+    ambient_constructor_declaration: $ => seq(
+      'constructor', '(', optional($.parameter_list), ')', ';'
+    ),
+
+    ambient_property_member_declaration: $ => seq(
+      optional($.accessibility_modifier),
+      optional('static'),
+      $.property_name,
+      choice(
+        optional($.type_annotation),
+        $.call_signature
+      ),
+      ';'
+    ),
+
+    ambient_enum_declaration: $ => $.enum_declaration,
+
+    ambient_namespace_declaration: $ => seq(
+      'namespace', $.identifier_path, '{', $.ambient_namespace_body, '}'
+    ),
+
+    ambient_namespace_body: $ => optional($.ambient_namespace_elements),
+
+    ambient_namespace_elements: $ => repeat1($.namespace_element),
+
+    ambient_namespace_element: $ => seq(
+      optional('export'),
+      choice(
+        $.ambient_variable_declaration,
+        $.ambient_lexical_declaration,
+        $.ambient_function_declaration,
+        $.ambient_class_declaration,
+        $.interface_declaration,
+        $.ambient_enum_declaration,
+        $.ambient_namespace_declaration,
+        $.import_alias_declaration
+      )
+    ),
+
+    ambient_module_declaration: $ => seq(
+      'declare', 'module', $.string_literal, '{', declaration_module, '}'
+    ),
 
 
 
@@ -1213,8 +1215,7 @@ module.exports = grammar({
 
     arguments: $ => commaSep1(err($._expression)),
 
-    class_body: $ => seq(
-      '{',
+    class_body: $ => seq( '{',
       repeat(seq(
         optional('static'),
         $.method_definition,
