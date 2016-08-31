@@ -406,6 +406,11 @@ module.exports = grammar({
       $.class_tail
     ),
 
+    // TODO: hide class_declaration or have them both use a hidden class?
+    // Possibly remove type parameters?
+    class_expression: $ => $.class_declaration,
+
+
     class_heritage: $ => seq(
       optional($.class_extends_clause), optional($.implements_clause)
     ),
@@ -1027,10 +1032,6 @@ module.exports = grammar({
     ),
 
 
-
-    class_expression: $ => seq(
-      'class', optional($.binding_identifier), $.class_tail
-    ),
 
     class_tail: $ => seq(
       $.class_heritage, '{', $.class_body, '}'
