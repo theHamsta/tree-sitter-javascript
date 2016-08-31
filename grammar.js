@@ -31,6 +31,9 @@ module.exports = grammar({
   conflicts: $ => [
     // [$._expression, $.method_definition],
     // [$._expression, $.formal_parameters],
+    [$.type_name, $.required_parameter],
+    // TODO: figure out what the conflict is
+    [$.single_name_binding, $.type_name]
   ],
 
   rules: {
@@ -209,7 +212,7 @@ module.exports = grammar({
     required_parameter: $ => choice(
       seq(
         optional($.accessibility_modifier),
-        $.binding_identifier_or_pattern,
+        bindingIdentifierOrPattern($),
         optional($.type_annotation)),
       seq(bindingIdentifier($), ':', $.string_literal)
     ),
@@ -230,16 +233,16 @@ module.exports = grammar({
     optional_parameter: $ => choice(
       seq(
         optional($.accessibility_modifier),
-        $.binding_identifier_or_pattern,
+        bindingIdentifierOrPattern($),
         '?',
         optional($.type_annotation)),
       seq(
         optional($.accessibility_modifier),
-        $.binding_identifier_or_pattern,
+        bindingIdentifierOrPattern($),
         '?',
         optional($.type_annotation)),
       seq(
-        $.binding_identifier_or_pattern,
+        bindingIdentifierOrPattern($),
         '?',
         ':',
         $.string_literal)
@@ -284,7 +287,7 @@ module.exports = grammar({
     ),
 
     set_accessor: $ => seq(
-      'set', $.property_name, '(', $.binding_identifier_or_pattern, optional($.type_annotation), ')', '{', $.function_body, '}'
+      'set', $.property_name, '(', bindingIdentifierOrPattern($), optional($.type_annotation), ')', '{', $.function_body, '}'
     ),
 
     function_expression: $ => seq(
@@ -1778,22 +1781,20 @@ function variableType () {
 }
 
 function identifierReference($) {
-  return choice(
-    $.identifier,
-    'yield'
-  )
+    return $.identifier
 }
 
 function bindingIdentifier($) {
-  return choice(
-    $.identifier,
-    'yield'
-  )
+    return $.identifier
 }
 
 function labelIdentifier($) {
+    return $.identifier
+}
+
+function bindingIdentifierOrPattern($) {
   return choice(
-    $.identifier,
-    'yield'
+    bindingIdentifier($),
+    $.binding_pattern
   )
 }
