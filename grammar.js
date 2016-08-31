@@ -49,7 +49,8 @@ module.exports = grammar({
     [$.array_binding_pattern, $.array_literal],
     [$.shift_expression, $.additive_expression],
     [$.breakable_statement, $.iteration_statement],
-    [$.function_expression, $.function_declaration]
+    [$.function_expression, $.function_declaration],
+    [$.hoistable_declaration, $.generator_expression]
   ],
 
   rules: {
