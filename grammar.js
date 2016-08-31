@@ -99,12 +99,12 @@ module.exports = grammar({
 
     type_name: $ => choice(
       $.identifier_reference,
-      $.namespace_name, '.', $.identifier_reference
+      seq($.namespace_name, '.', $.identifier_reference)
     ),
 
     namespace_name: $ => choice(
       $.identifier_reference,
-      $.namespace_name, '.', $.identifier_reference
+      seq($.namespace_name, '.', $.identifier_reference)
     ),
 
     object_type: $ => seq(
