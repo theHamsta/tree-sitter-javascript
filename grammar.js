@@ -114,15 +114,15 @@ module.exports = grammar({
 
     type_reference: $ => seq(
       $.type_name,
-      optional($.type_arguments)
+      // TODO, make type_arguments optional
+      $.type_arguments
     ),
 
-    type_name: $ => choice(
-      $.identifier_reference,
-      $.namespace_name, '.', $.identifier_reference
-    ),
+    type_name: $ => $._type_or_namespace_name,
 
-    namespace_name: $ => choice(
+    namespace_name: $ => $._type_or_namespace_name,
+
+    _type_or_namespace_name: $ => choice(
       $.identifier_reference,
       $.namespace_name, '.', $.identifier_reference
     ),
