@@ -400,7 +400,10 @@ module.exports = grammar({
     // Classes
 
     class_declaration: $ => seq(
-      'class', optional($.binding_identifier), optional($.type_parameters), $.class_heritage, '{', $.class_body, '}'
+      'class',
+      optional($.binding_identifier),
+      optional($.type_parameters),
+      $.class_tail
     ),
 
     class_heritage: $ => seq(
