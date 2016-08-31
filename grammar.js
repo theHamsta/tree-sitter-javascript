@@ -31,6 +31,25 @@ module.exports = grammar({
   conflicts: $ => [
     // [$._expression, $.method_definition],
     // [$._expression, $.formal_parameters],
+    [$.type_name, $.namespace_name],
+    [$.this_type, $.primary_expression],
+    [$.yield_expression, $.binding_identifier, $.identifier_reference],
+    [$.binding_identifier, $.identifier_reference],
+    [$.yield_expression, $.identifier_reference],
+    [$.yield_expression, $.binding_identifier],
+    [$.cover_parenthesized_expression_and_arrow_parameter_list, $.rest_parameter],
+    [$.type_query_expression, $.type_name, $.namespace_name],
+    [$.primary_expression, $.type_query_expression],
+    [$.type_name, $.namespace_name, $.type_query_expression, $.primary_expression],
+    [$.type_name, $.namespace_name, $.primary_expression],
+    [$.property_name, $.identifier_reference],
+    [$.label_identifier, $.property_name],
+    [$.literal, $.property_name],
+    [$.equality_expression, $.relational_expression],
+    [$.array_binding_pattern, $.array_literal],
+    [$.shift_expression, $.additive_expression],
+    [$.breakable_statement, $.iteration_statement],
+    [$.function_expression, $.function_declaration]
   ],
 
   rules: {
@@ -472,7 +491,8 @@ module.exports = grammar({
     ),
 
     enum_body: $ => seq(
-      commaSep1($.enum_member), optional(',')
+      // TODO add back trailing comma
+      commaSep1($.enum_member)
     ),
 
     enum_member: $ => choice(
@@ -1740,7 +1760,8 @@ module.exports = grammar({
     //
     formal_parameters: $ => choice(
       $.binding_rest_element,
-      seq(commaSep1($.binding_element), optional(seq(',', $.binding_rest_element)))
+      // TODO: add back optional(seq(',', $.binding_rest_element)
+      seq(commaSep1($.binding_element))
     ),
     //
     method_definition: $ => choice(
