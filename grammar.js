@@ -1037,9 +1037,7 @@ module.exports = grammar({
       $.class_heritage, '{', $.class_body, '}'
     ),
 
-    generator_expression: $ => seq(
-      'function','*', optional($.binding_identifier), '(', $.formal_parameters, ')', '{', $.generator_body, '}'
-    ),
+    generator_expression: $ => $.generator_declaration,
 
     generator_body: $ => $.function_body,
 
