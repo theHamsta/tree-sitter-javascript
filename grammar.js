@@ -40,7 +40,7 @@ module.exports = grammar({
     ),
 
     type_parameter: $ => seq(
-      $.binding_identifier,
+      bindingIdentifier($),
       optional($.constraint)
     ),
 
@@ -98,13 +98,13 @@ module.exports = grammar({
     ),
 
     type_name: $ => choice(
-      $.identifier_reference,
-      seq($.namespace_name, '.', $.identifier_reference)
+      identifierReference($),
+      seq($.namespace_name, '.', identifierReference($))
     ),
 
     namespace_name: $ => choice(
-      $.identifier_reference,
-      seq($.namespace_name, '.', $.identifier_reference)
+      identifierReference($),
+      seq($.namespace_name, '.', identifierReference($))
     ),
 
     object_type: $ => seq(
@@ -168,7 +168,7 @@ module.exports = grammar({
     type_query: $ => seq('typeof', $.type_query_expression),
 
     type_query_expression: $ => choice(
-      $.identifier_reference,
+      identifierReference($),
 			// FIXME: Should use identifier_name not identifier
       seq($.type_query_expression, '.', $.identifier)
     ),
@@ -211,7 +211,7 @@ module.exports = grammar({
         optional($.accessibility_modifier),
         $.binding_identifier_or_pattern,
         optional($.type_annotation)),
-      seq($.binding_identifier, ':', $.string_literal)
+      seq(bindingIdentifier($), ':', $.string_literal)
     ),
 
     accessibility_modifier: $ => choice(
@@ -221,7 +221,7 @@ module.exports = grammar({
     ),
 
     binding_identifier_or_pattern: $ => choice(
-      $.binding_identifier,
+      bindingIdentifier($),
       $.binding_pattern
     ),
 
@@ -246,7 +246,7 @@ module.exports = grammar({
     ),
 
     rest_parameter: $ =>
-      seq('...', $.binding_identifier, optional($.type_annotation)),
+      seq('...', bindingIdentifier($), optional($.type_annotation)),
 
     construct_signature: $ => seq(
       'new',
@@ -256,8 +256,8 @@ module.exports = grammar({
     ),
 
     index_signature: $ => choice(
-      seq('[', $.binding_identifier, ':', 'string', ']', $.type_annotation),
-      seq('[', $.binding_identifier, ':', 'number', ']', $.type_annotation)
+      seq('[', bindingIdentifier($), ':', 'string', ']', $.type_annotation),
+      seq('[', bindingIdentifier($), ':', 'number', ']', $.type_annotation)
     ),
 
     method_signature: $ => seq(
@@ -265,13 +265,13 @@ module.exports = grammar({
     ),
 
     type_alias_declaration: $ => seq(
-      'type', $.binding_identifier, optional($.type_parameters), '=', $.type, ';'
+      'type', bindingIdentifier($), optional($.type_parameters), '=', $.type, ';'
     ),
 
     // Expressions
 
     property_definition: $ => choice(
-      $.identifier_reference,
+      identifierReference($),
       $.cover_initialized_name,
       seq($.property_name, ':', $.assignment_expression),
       seq($.property_name, $.call_signature, '{', $.function_body, '}'),
@@ -288,7 +288,7 @@ module.exports = grammar({
     ),
 
     function_expression: $ => seq(
-      'function', optional($.binding_identifier), $.call_signature, '{', $.function_body, '}'
+      'function', optional(bindingIdentifier($)), $.call_signature, '{', $.function_body, '}'
     ),
 
     arrow_formal_parameters: $ => $.call_signature,
@@ -336,11 +336,11 @@ module.exports = grammar({
     ),
 
     simple_variable_declaration: $ => seq(
-      $.binding_identifier, optional($.type_annotation), optional($.initializer)
+      bindingIdentifier($), optional($.type_annotation), optional($.initializer)
     ),
 
     destructuring_variable_declaration: $ => seq(
-      $.binding_identifier, optional($.type_annotation), $.initializer
+      bindingIdentifier($), optional($.type_annotation), $.initializer
     ),
 
     lexical_binding: $ => choice(
@@ -349,7 +349,7 @@ module.exports = grammar({
     ),
 
     simple_lexical_binding: $ => seq(
-      $.binding_identifier, optional($.type_annotation), optional($.initializer)
+      bindingIdentifier($), optional($.type_annotation), optional($.initializer)
     ),
 
     destructuring_lexical_binding: $ => seq(
@@ -359,14 +359,14 @@ module.exports = grammar({
     // Functions
 
     function_declaration: $ => choice(
-      seq('function', optional($.binding_identifier), $.call_signature, '{', $.function_body, '}'),
-      seq('function', optional($.binding_identifier), $.call_signature, ';')
+      seq('function', optional(bindingIdentifier($)), $.call_signature, '{', $.function_body, '}'),
+      seq('function', optional(bindingIdentifier($)), $.call_signature, ';')
     ),
 
     // Interfaces
 
     interface_declaration: $ => seq(
-      'interface', $.binding_identifier, optional($.type_parameters), optional($.interface_extends_clause), $.object_type
+      'interface', bindingIdentifier($), optional($.type_parameters), optional($.interface_extends_clause), $.object_type
     ),
 
     interface_extends_clause: $ => seq(
@@ -380,7 +380,7 @@ module.exports = grammar({
     // Classes
 
     class_declaration: $ => seq(
-      'class', optional($.binding_identifier), optional($.type_parameters), $.class_heritage, '{', $.class_body, '}'
+      'class', optional(bindingIdentifier($)), optional($.type_parameters), $.class_heritage, '{', $.class_body, '}'
     ),
 
     class_heritage: $ => seq(
@@ -468,7 +468,7 @@ module.exports = grammar({
     // Enums
 
     enum_declaration: $ => seq(
-      optional('const'), 'enum', $.binding_identifier, '{', optional($.enum_body), '}'
+      optional('const'), 'enum', bindingIdentifier($), '{', optional($.enum_body), '}'
     ),
 
     enum_body: $ => seq(
@@ -489,8 +489,8 @@ module.exports = grammar({
     ),
 
     identifier_path: $ => choice(
-      $.binding_identifier,
-      seq($.identifier_path, '.', $.binding_identifier)
+      bindingIdentifier($),
+      seq($.identifier_path, '.', bindingIdentifier($))
     ),
 
     namespace_body: $ => optional($.namespace_elements),
@@ -529,12 +529,12 @@ module.exports = grammar({
 		),
 
     import_alias_declaration: $ => seq(
-      'import', $.binding_identifier, '=', $.entity_name, ';'
+      'import', bindingIdentifier($), '=', $.entity_name, ';'
     ),
 
     entity_name: $ => choice(
       $.namespace_name,
-      seq($.namespace_name, '.', $.identifier_reference)
+      seq($.namespace_name, '.', identifierReference($))
     ),
 
     // Scripts and Modules
@@ -669,7 +669,7 @@ module.exports = grammar({
     ),
 
     import_require_declaration: $ => seq(
-      'import', $.binding_identifier, '=', 'require', '(', $.string_literal, ')', ';'
+      'import', bindingIdentifier($), '=', 'require', '(', $.string_literal, ')', ';'
     ),
 
     export_implementation_element: $ => seq(
@@ -716,7 +716,7 @@ module.exports = grammar({
       choice(
         $.ambient_function_declaration,
         $.ambient_class_declaration,
-        seq($.identifier_reference, ';')
+        seq(identifierReference($), ';')
       )
     ),
 
@@ -730,7 +730,7 @@ module.exports = grammar({
     ),
 
     export_assignment: $ => seq(
-      'export', '=', $.identifier_reference, ';'
+      'export', '=', identifierReference($), ';'
     ),
 
     // Ambients
@@ -755,15 +755,15 @@ module.exports = grammar({
     ambient_binding_list: $ => commaSep1($.ambient_binding),
 
     ambient_binding: $ => seq(
-      $.binding_identifier, optional($.type_annotation)
+      bindingIdentifier($), optional($.type_annotation)
     ),
 
     ambient_function_declaration: $ => seq(
-      'function', $.binding_identifier, $.call_signature, ';'
+      'function', bindingIdentifier($), $.call_signature, ';'
     ),
 
     ambient_class_declaration: $ => seq(
-      'class', $.binding_identifier, optional($.type_parameters), $.class_heritage, '{', $.ambient_class_body, '}'
+      'class', bindingIdentifier($), optional($.type_parameters), $.class_heritage, '{', $.ambient_class_body, '}'
     ),
 
     ambient_class_body: $ => optional($.ambient_class_body_elements),
@@ -820,21 +820,6 @@ module.exports = grammar({
     ),
 
 		// ES6
-
-		identifier_reference: $ => choice(
-			$.identifier,
-			'yield'
-		),
-
-		binding_identifier: $ => choice(
-			$.identifier,
-			'yield'
-		),
-
-		label_identifier: $ => choice(
-			$.identifier,
-			'yield'
-		),
 
 		keyword: $ => choice(
 			'break',
@@ -920,11 +905,11 @@ module.exports = grammar({
 		),
 
 		single_name_binding: $ => seq(
-			$.binding_identifier, optional($.initializer)
+			bindingIdentifier($), optional($.initializer)
 		),
 
 		binding_rest_element: $ => seq(
-			'...', $.binding_identifier
+			'...', bindingIdentifier($)
 		),
 
 		assignment_expression: $ => choice(
@@ -953,7 +938,7 @@ module.exports = grammar({
 
     primary_expression: $ => choice(
       'this',
-      $.identifier_reference,
+      identifierReference($),
       $.literal,
       $.array_literal,
       $.object_literal,
@@ -968,8 +953,8 @@ module.exports = grammar({
     cover_parenthesized_expression_and_arrow_parameter_list: $ => choice(
       seq('(', $.expression, ')'),
       seq('(',')'),
-      seq('(', '...', $.binding_identifier, ')'),
-      seq('(', $.expression, ',', '...', $.binding_identifier, ')')
+      seq('(', '...', bindingIdentifier($), ')'),
+      seq('(', $.expression, ',', '...', bindingIdentifier($), ')')
     ),
 
     literal: $ => choice(
@@ -996,7 +981,7 @@ module.exports = grammar({
     property_definition_list: $ => repeat1($.property_definition),
 
     property_defintion: $ => choice(
-      $.identifier_reference,
+      identifierReference($),
       $.cover_initialized_name,
       seq($.property_name, ':', $.assignment_expression),
       $.method_definition
@@ -1005,7 +990,7 @@ module.exports = grammar({
 
 
     class_expression: $ => seq(
-      'class', optional($.binding_identifier), $.class_tail
+      'class', optional(bindingIdentifier($)), $.class_tail
     ),
 
     class_tail: $ => seq(
@@ -1013,7 +998,7 @@ module.exports = grammar({
     ),
 
     generator_expression: $ => seq(
-      'function','*', optional($.binding_identifier), '(', $.formal_parameters, ')', '{', $.generator_body, '}'
+      'function','*', optional(bindingIdentifier($)), '(', $.formal_parameters, ')', '{', $.generator_body, '}'
     ),
 
     generator_body: $ => $.function_body,
@@ -1130,7 +1115,7 @@ module.exports = grammar({
     statement_list_item: $ => choice($.statement, $.declaration),
 
     cover_initialized_name: $ => seq(
-      $.identifier_reference, $.initializer
+      identifierReference($), $.initializer
     ),
 
     postfix_expression: $ => seq(
@@ -1222,7 +1207,7 @@ module.exports = grammar({
     ),
 
     labelled_statement: $ => seq(
-      $.label_identifier, ':', $.labelled_item
+      labelIdentifier($), ':', $.labelled_item
     ),
 
     labelled_item: $ => choice(
@@ -1254,7 +1239,7 @@ module.exports = grammar({
 
     continue_statement: $ => choice(
       seq('continue', ';'),
-      seq('continue', $.label_identifier, ';')
+      seq('continue', labelIdentifier($), ';')
     ),
 
     with_statement: $ => seq(
@@ -1262,7 +1247,7 @@ module.exports = grammar({
     ),
 
     generator_declaration: $ => choice(
-      seq('function', '*', $.binding_identifier, '(', $.formal_parameters, ')', '{', $.generator_body, '}'),
+      seq('function', '*', bindingIdentifier($), '(', $.formal_parameters, ')', '{', $.generator_body, '}'),
       seq('function', '*', '(', $.formal_parameters, ')', '{', $.generator_body, '}')
     ),
 
@@ -1271,7 +1256,7 @@ module.exports = grammar({
     ),
 
     variable_declaration: $ => choice(
-      seq($.binding_identifier, optional($.initializer)),
+      seq(bindingIdentifier($), optional($.initializer)),
       seq($.binding_pattern, $.initializer)
     ),
 
@@ -1554,7 +1539,7 @@ module.exports = grammar({
     ),
 
     arrow_parameters: $ => choice(
-      $.binding_identifier,
+      bindingIdentifier($),
       $.cover_parenthesized_expression_and_arrow_parameter_list
     ),
 
@@ -1790,4 +1775,25 @@ function terminator () {
 
 function variableType () {
   return choice('var', 'let', 'const');
+}
+
+function identifierReference($) {
+  return choice(
+    $.identifier,
+    'yield'
+  )
+}
+
+function bindingIdentifier($) {
+  return choice(
+    $.identifier,
+    'yield'
+  )
+}
+
+function labelIdentifier($) {
+  return choice(
+    $.identifier,
+    'yield'
+  )
 }
