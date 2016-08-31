@@ -50,7 +50,13 @@ module.exports = grammar({
     [$.shift_expression, $.additive_expression],
     [$.breakable_statement, $.iteration_statement],
     [$.function_expression, $.function_declaration],
-    [$.hoistable_declaration, $.generator_expression]
+    [$.hoistable_declaration, $.generator_expression],
+    [$.intersection_or_primary_type, $.array_type],
+    [$.intersection_type, $.array_type],
+    [$.declaration, $.class_expression],
+    [$.cover_initialized_name, $.primary_expression],
+    [$.property_name, $.binding_identifier],
+    [$.required_parameter, $.binding_identifier_or_pattern]
   ],
 
   rules: {
@@ -921,21 +927,25 @@ module.exports = grammar({
 			$.array_binding_pattern
 		),
 
-		array_binding_pattern: $ => choice(
-			seq('[', optional($.elision), optional($.binding_rest_element), ']'),
-			seq('[', commaSep1($.binding_elision_element),']'),
-			seq('[', commaSep1($.binding_elision_element), ',', optional($.elision), optional($.binding_rest_element), ']')
-		),
+		array_binding_pattern: $ => seq(
+      '[',
+      choice(
+        seq(optional($.elision), optional($.binding_rest_element)),
+        commaSep1($.binding_elision_element)),
+        // TODO: Add this back
+        // seq(
+        //   commaSep1($.binding_elision_element),
+        //   ',',
+        //   optional($.elision),
+        //   optional($.binding_rest_element))),
+      ']'
 
-		object_binding_pattern: $ => prec(PREC.OBJECT, seq(
-      // TODO: Add optional comma back
-      '{', commaSep(err($.binding_property)), '}'
-    )),
+    ),
 
     elision: $ => repeat1(','),
 
 		binding_elision_element: $ => seq(
-			optional($.elision), $.binding_element
+			$.binding_element
 		),
 
 		binding_property: $ => choice(
@@ -943,18 +953,26 @@ module.exports = grammar({
 			seq($.property_name, ':', $.binding_element)
 		),
 
+
 		binding_element: $ => choice(
 			$.single_name_binding,
-			seq($.binding_pattern, optional($.initializer))
+      // TODO: Add back optional(initializer)
+			$.binding_pattern
 		),
 
+    // TODO: Add back optional(initializer)
 		single_name_binding: $ => seq(
-			$.binding_identifier, optional($.initializer)
+			$.binding_identifier
 		),
 
 		binding_rest_element: $ => seq(
 			'...', $.binding_identifier
 		),
+
+		object_binding_pattern: $ => prec(PREC.OBJECT, seq(
+      // TODO: Add optional comma back
+      '{', commaSep(err($.binding_property)), '}'
+    )),
 
 		assignment_expression: $ => choice(
 			$.conditional_expression,
