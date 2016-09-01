@@ -976,14 +976,12 @@ module.exports = grammar({
 
     property_definition_list: $ => repeat1($.property_definition),
 
-    property_defintion: $ => choice(
-      identifierReference($),
-      $.cover_initialized_name,
-      seq($.property_name, ':', $.assignment_expression),
-      $.method_definition
-    ),
-
-
+    // property_definition: $ => choice(
+    //   identifierReference($),
+    //   $.cover_initialized_name,
+    //   seq($.property_name, ':', $.assignment_expression),
+    //   $.method_definition
+    // ),
 
     class_expression: $ => seq(
       'class', optional(bindingIdentifier($)), $.class_tail
