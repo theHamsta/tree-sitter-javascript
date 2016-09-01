@@ -168,15 +168,15 @@ module.exports = grammar({
       $.type
     ),
 
-		constructor_type: $ => seq(
-			'new', optional($.type_parameters), '(', optional($.parameter_list), ')', '=>', $.type
-		),
+    constructor_type: $ => seq(
+      'new', optional($.type_parameters), '(', optional($.parameter_list), ')', '=>', $.type
+    ),
 
     type_query: $ => seq('typeof', $.type_query_expression),
 
     type_query_expression: $ => choice(
       identifierReference($),
-			// FIXME: Should use identifier_name not identifier
+      // FIXME: Should use identifier_name not identifier
       seq($.type_query_expression, '.', $.identifier)
     ),
 
@@ -187,7 +187,7 @@ module.exports = grammar({
     ),
 
     property_name: $ => choice(
-			// FIXME: Should use identifier_name not identifier
+      // FIXME: Should use identifier_name not identifier
       $.identifier,
       $.string_literal,
       $.numeric_literal
@@ -308,7 +308,7 @@ module.exports = grammar({
     ),
 
     unary_expression: $ => choice(
-			$.postfix_expression,
+      $.postfix_expression,
       seq(choice(
         'delete',
         'void',
@@ -325,9 +325,9 @@ module.exports = grammar({
     ),
 
     declaration: $ => choice(
-			$.hoistable_declaration,
-			$.class_declaration,
-			$.lexical_declaration,
+      $.hoistable_declaration,
+      $.class_declaration,
+      $.lexical_declaration,
       $.interface_declaration,
       $.type_alias_declaration,
       $.enum_declaration
@@ -522,7 +522,7 @@ module.exports = grammar({
         $.namespace_declaration,
         $.ambient_declaration,
         $.import_alias_declaration)
-		),
+    ),
 
     import_alias_declaration: $ => seq(
       'import', bindingIdentifier($), '=', $.entity_name, ';'
@@ -815,106 +815,112 @@ module.exports = grammar({
       'declare', 'module', $.string_literal, '{', $.declaration_module, '}'
     ),
 
-		// ES6
+    // ES6
 
-		keyword: $ => choice(
-			'break',
-			'do',
-			'in',
-			'typeof',
-			'case',
-			'else',
-			'instanceof',
-			'var',
-			'catch',
-			'export',
-			'new',
-			'void',
-			'class',
-			'extends',
-			'return',
-			'while',
-			'const',
-			'finally',
-			'super',
-			'with',
-			'continue',
-			'for',
-			'switch',
-			'yield',
-			'debugger',
-			'function',
-			'this',
-			'default',
-			'if',
-			'throw',
-			'delete',
-			'import',
-			'try'
-		),
+    keyword: $ => choice(
+      'break',
+      'do',
+      'in',
+      'typeof',
+      'case',
+      'else',
+      'instanceof',
+      'var',
+      'catch',
+      'export',
+      'new',
+      'void',
+      'class',
+      'extends',
+      'return',
+      'while',
+      'const',
+      'finally',
+      'super',
+      'with',
+      'continue',
+      'for',
+      'switch',
+      'yield',
+      'debugger',
+      'function',
+      'this',
+      'default',
+      'if',
+      'throw',
+      'delete',
+      'import',
+      'try'
+    ),
 
-		future_reserved_word: $ => choice(
-			'enum',
-			'await',
-			'implements',
-			'interface',
-			'package',
-			'private',
-			'protected',
-			'public'
-		),
+    future_reserved_word: $ => choice(
+      'enum',
+      'await',
+      'implements',
+      'interface',
+      'package',
+      'private',
+      'protected',
+      'public'
+    ),
 
-		null_literal: $ => 'null',
+    null_literal: $ => 'null',
 
-		boolean_literal: $ => choice('true', 'false'),
+    boolean_literal: $ => choice('true', 'false'),
 
-		binding_pattern: $ => choice(
-			$.object_binding_pattern,
-			$.array_binding_pattern
-		),
+    binding_pattern: $ => choice(
+      $.object_binding_pattern,
+      $.array_binding_pattern
+    ),
 
-		array_binding_pattern: $ => choice(
-			seq('[', optional($.elision), optional($.binding_rest_element), ']'),
-			seq('[', commaSep1($.binding_elision_element),']'),
-			seq('[', commaSep1($.binding_elision_element), ',', optional($.elision), optional($.binding_rest_element), ']')
-		),
+    array_binding_pattern: $ => choice(
+      seq('[', optional($.elision), optional($.binding_rest_element), ']'),
+      seq('[', $._comma_sep_binding_elements,']'),
+      seq('[', $._comma_sep_binding_elements_with_rest_element , ']')
+    ),
 
-		object_binding_pattern: $ => prec(PREC.OBJECT, seq(
+    _comma_sep_binding_elements: $ =>
+      commaSep1($.binding_elision_element),
+
+    _comma_sep_binding_elements_with_rest_element: $ =>
+      seq(commaSep1($.binding_elision_element), ',', optional($.elision), optional($.binding_rest_element)),
+
+    object_binding_pattern: $ => prec(PREC.OBJECT, seq(
       // TODO: Add optional comma back
       '{', commaSep(err($.binding_property)), '}'
     )),
 
     elision: $ => repeat1(','),
 
-		binding_elision_element: $ => seq(
-			optional($.elision), $.binding_element
-		),
+    binding_elision_element: $ => seq(
+      optional($.elision), $.binding_element
+    ),
 
-		binding_property: $ => choice(
-			$.single_name_binding,
-			seq($.property_name, ':', $.binding_element)
-		),
+    binding_property: $ => choice(
+      $.single_name_binding,
+      seq($.property_name, ':', $.binding_element)
+    ),
 
-		binding_element: $ => choice(
-			$.single_name_binding,
-			seq($.binding_pattern, optional($.initializer))
-		),
+    binding_element: $ => choice(
+      $.single_name_binding,
+      seq($.binding_pattern, optional($.initializer))
+    ),
 
-		single_name_binding: $ => seq(
-			bindingIdentifier($), optional($.initializer)
-		),
+    single_name_binding: $ => seq(
+      bindingIdentifier($), optional($.initializer)
+    ),
 
-		binding_rest_element: $ => seq(
-			'...', bindingIdentifier($)
-		),
+    binding_rest_element: $ => seq(
+      '...', bindingIdentifier($)
+    ),
 
-		assignment_expression: $ => choice(
-			$.conditional_expression,
-			$.yield_expression,
-			$.arrow_function,
-			seq($.left_hand_side_expression, '=', $.assignment_expression),
-			seq($.left_hand_side_expression, $.assignment_operator, $.assignment_expression)
-		),
+    assignment_expression: $ => choice(
+      $.conditional_expression,
+      $.yield_expression,
+      $.arrow_function,
+      seq($.left_hand_side_expression, '=', $.assignment_expression),
+      seq($.left_hand_side_expression, $.assignment_operator, $.assignment_expression)
+    ),
 
     assignment_operator: $ => choice(
       '*=',
@@ -1721,6 +1727,7 @@ module.exports = grammar({
       $.binding_rest_element,
       seq(commaSep1($.binding_element), optional(seq(',', $.binding_rest_element)))
     ),
+
     //
     method_definition: $ => choice(
       seq($.property_name, '(', $.formal_parameters, ')', '{', $.function_body, '}'),
