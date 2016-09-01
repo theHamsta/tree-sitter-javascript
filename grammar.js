@@ -33,7 +33,11 @@ module.exports = grammar({
     // [$._expression, $.formal_parameters],
     [$.type_name, $.required_parameter],
     // TODO: figure out what the conflict is
-    [$.single_name_binding, $.type_name]
+    [$.single_name_binding, $.type_name],
+    [$.property_name, $.primary_expression],
+    [$.property_name, $.labelled_statement],
+    [$.cover_initialized_name, $.primary_expression],
+    [$.primary_expression, $.labelled_item]
   ],
 
   rules: {
