@@ -294,10 +294,6 @@ module.exports = grammar({
       'set', $.property_name, '(', bindingIdentifierOrPattern($), optional($.type_annotation), ')', '{', $.function_body, '}'
     ),
 
-    function_expression: $ => seq(
-      'function', optional(bindingIdentifier($)), $.call_signature, '{', $.function_body, '}'
-    ),
-
     arrow_formal_parameters: $ => $.call_signature,
 
     arguments: $ => seq(
@@ -361,13 +357,6 @@ module.exports = grammar({
 
     destructuring_lexical_binding: $ => seq(
       $.binding_pattern, optional($.type_annotation), optional($.initializer)
-    ),
-
-    // Functions
-
-    function_declaration: $ => choice(
-      seq('function', optional(bindingIdentifier($)), $.call_signature, '{', $.function_body, '}'),
-      seq('function', optional(bindingIdentifier($)), $.call_signature, ';')
     ),
 
     // Interfaces
@@ -507,7 +496,7 @@ module.exports = grammar({
     namespace_element: $ => choice(
       $.statement,
       $.lexical_declaration,
-      $.function_declaration,
+      functionDeclaration($),
       $.generator_declaration,
       $.class_declaration,
       $.interface_declaration,
@@ -524,7 +513,7 @@ module.exports = grammar({
       choice(
         $.variable_statement,
         $.lexical_declaration,
-        $.function_declaration,
+        functionDeclaration($),
         $.generator_declaration,
         $.class_declaration,
         $.interface_declaration,
@@ -575,7 +564,7 @@ module.exports = grammar({
     implementation_element: $ => choice(
       $.statement,
       $.lexical_declaration,
-      $.function_declaration,
+      functionDeclaration($),
       $.generator_declaration,
       $.class_declaration,
       $.interface_declaration,
@@ -684,7 +673,7 @@ module.exports = grammar({
       choice(
         $.variable_statement,
         $.lexical_declaration,
-        $.function_declaration,
+        functionDeclaration($),
         $.generator_declaration,
         $.class_declaration,
         $.interface_declaration,
@@ -710,7 +699,7 @@ module.exports = grammar({
       'export',
       'default',
       choice(
-        $.function_declaration,
+        functionDeclaration($),
         $.generator_declaration,
         $.class_declaration,
         seq($.assignment_expression, ';')
@@ -949,7 +938,7 @@ module.exports = grammar({
       $.literal,
       $.array_literal,
       $.object_literal,
-      $.function_expression,
+      functionExpression($),
       $.class_expression,
       $.generator_expression,
       $.regular_expression_literal,
@@ -1175,7 +1164,7 @@ module.exports = grammar({
     ),
 
     hoistable_declaration: $ => choice(
-      $.function_declaration,
+      functionDeclaration($),
       $.generator_declaration
     ),
 
@@ -1219,7 +1208,7 @@ module.exports = grammar({
 
     labelled_item: $ => choice(
       $.statement,
-      $.function_declaration
+      functionDeclaration($)
     ),
 
     debugger_statement: $ => seq(
@@ -1801,4 +1790,19 @@ function bindingIdentifierOrPattern($) {
     bindingIdentifier($),
     $.binding_pattern
   )
+}
+
+// Functions
+
+function functionDeclaration($) {
+  return choice(
+    seq('function', optional(bindingIdentifier($)), $.call_signature, '{', $.function_body, '}'),
+    seq('function', optional(bindingIdentifier($)), $.call_signature, ';')
+  );
+}
+
+function functionExpression($) {
+  return seq(
+    'function', optional(bindingIdentifier($)), $.call_signature, '{', $.function_body, '}'
+  );
 }
