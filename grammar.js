@@ -111,18 +111,14 @@ module.exports = grammar({
     ),
 
     type_reference: $ => seq(
-      $.type_name,
+      $.type_or_namespace_name,
       // TODO, make type_arguments optional
       $.type_arguments
     ),
 
-    type_name: $ => $._type_or_namespace_name,
-
-    namespace_name: $ => $._type_or_namespace_name,
-
-    _type_or_namespace_name: $ => choice(
+    type_or_namespace_name: $ => choice(
       $.identifier_reference,
-      $.namespace_name, '.', $.identifier_reference
+      seq($.type_or_namespace_name, '.', $.identifier_reference)
     ),
 
     object_type: $ => seq(
@@ -512,7 +508,7 @@ module.exports = grammar({
     // Namespaces
 
     namespace_declaration: $ => seq(
-      'namespace', $.identifier_path, '{', $.namespace_body, '}'
+      'namespace', $.identifier_path, '{', optional($.namespace_body), '}'
     ),
 
     identifier_path: $ => choice(
@@ -520,7 +516,7 @@ module.exports = grammar({
       seq($.identifier_path, '.', $.binding_identifier)
     ),
 
-    namespace_body: $ => optional($.namespace_elements),
+    namespace_body: $ => $.namespace_elements,
 
     namespace_elements: $ => repeat1($.namespace_element),
 
@@ -560,8 +556,8 @@ module.exports = grammar({
     ),
 
     entity_name: $ => choice(
-      $.namespace_name,
-      seq($.namespace_name, '.', $.identifier_reference)
+      $.type_or_namespace_name,
+      seq($.type_or_namespace_name, '.', $.identifier_reference)
     ),
 
     // Scripts and Modules
@@ -581,7 +577,7 @@ module.exports = grammar({
       $.declaration_module
     ),
 
-    implementation_script: $ => optional($.implementation_script_elements),
+    implementation_script: $ => $.implementation_script_elements,
 
     implementation_script_elements: $ => repeat1(
       $.implementation_script_element
@@ -606,7 +602,7 @@ module.exports = grammar({
       $.import_alias_declaration
     ),
 
-    declaration_script: $ => optional($.declaration_script_elements),
+    declaration_script: $ => $.declaration_script_elements,
 
     declaration_script_elements: $ => repeat1(
       $.declaration_script_element
@@ -625,7 +621,7 @@ module.exports = grammar({
       $.import_alias_declaration
     ),
 
-    implementation_module: $ => optional($.implementation_module_elements),
+    implementation_module: $ => $.implementation_module_elements,
 
     implementation_module_elements: $ => repeat1(
       $.implementation_module_element
@@ -642,7 +638,7 @@ module.exports = grammar({
       $.export_assignment
     ),
 
-    declaration_module: $ => optional($.declaration_module_elements),
+    declaration_module: $ => $.declaration_module_elements,
 
     declaration_module_elements: $ => repeat1( $.declaration_module_element),
 
@@ -790,10 +786,10 @@ module.exports = grammar({
     ),
 
     ambient_class_declaration: $ => seq(
-      'class', $.binding_identifier, optional($.type_parameters), $.class_heritage, '{', $.ambient_class_body, '}'
+      'class', $.binding_identifier, optional($.type_parameters), optional($.class_heritage), '{', optional($.ambient_class_body), '}'
     ),
 
-    ambient_class_body: $ => optional($.ambient_class_body_elements),
+    ambient_class_body: $ => $.ambient_class_body_elements,
 
     ambient_class_body_elements: $ => repeat1($.ambient_class_body_element),
 
@@ -821,10 +817,10 @@ module.exports = grammar({
     ambient_enum_declaration: $ => $.enum_declaration,
 
     ambient_namespace_declaration: $ => seq(
-      'namespace', $.identifier_path, '{', $.ambient_namespace_body, '}'
+      'namespace', $.identifier_path, '{', optional($.ambient_namespace_body), '}'
     ),
 
-    ambient_namespace_body: $ => optional($.ambient_namespace_elements),
+    ambient_namespace_body: $ => $.ambient_namespace_elements,
 
     ambient_namespace_elements: $ => repeat1($.namespace_element),
 
@@ -1044,7 +1040,7 @@ module.exports = grammar({
 
 
     class_tail: $ => seq(
-      $.class_heritage, '{', $.class_body, '}'
+      optional($.class_heritage), '{', $.class_body, '}'
     ),
 
     generator_expression: $ => $.generator_declaration,
@@ -1156,7 +1152,7 @@ module.exports = grammar({
 
     function_body: $ => $.function_statement_list,
 
-    function_statement_list: $ => optional($.statement_list),
+    function_statement_list: $ => $.statement_list,
 
     statement_list: $ => repeat1($.statement_list_item),
 
