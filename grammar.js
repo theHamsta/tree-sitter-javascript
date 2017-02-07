@@ -48,7 +48,11 @@ module.exports = grammar({
 
     // { key ,
     //    ^--- shorthand object property or comma expression in block?
-    [$._expression, $._property_definition_list]
+    [$._expression, $._property_definition_list],
+
+    // function foo(x: "hello")
+    //              ^--- is it a required parameter or a binding_identifier_or_pattern?
+    [$.required_parameter, $.binding_identifier_or_pattern]
   ],
 
   rules: {
