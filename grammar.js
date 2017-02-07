@@ -29,6 +29,26 @@ module.exports = grammar({
   ],
 
   conflicts: $ => [
+    // { foo (
+    //    ^--- method definition or function call in block?
+    [$._expression, $.method_definition],
+
+    // { async (
+    //    ^--- method definition or async arrow function?
+    [$.reserved_identifier, $.arrow_function],
+
+    // ( foo ,
+    //    ^--- arrow function parameters or comma expression?
+    [$.formal_parameters, $._expression],
+
+    // ( {foo} )
+    // ( [foo] )
+    //    ^-- destructured arrow function parameters or parenthesized expression?
+    [$.assignment_pattern, $._expression],
+
+    // { key ,
+    //    ^--- shorthand object property or comma expression in block?
+    [$._expression, $._property_definition_list]
   ],
 
   rules: {
