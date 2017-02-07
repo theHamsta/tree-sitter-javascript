@@ -405,8 +405,10 @@ module.exports = grammar({
     class_expression: $ => $.class_declaration,
 
 
-    class_heritage: $ => seq(
-      optional($.class_extends_clause), optional($.implements_clause)
+    class_heritage: $ => choice(
+        $.class_extends_clause,
+        $.implements_clause,
+        seq($.class_extends_clause, $.implements_clause)
     ),
 
     class_extends_clause: $ => seq(
