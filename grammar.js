@@ -53,6 +53,11 @@ module.exports = grammar({
     // function foo(x: "hello")
     //              ^--- is it a required parameter or a binding_identifier_or_pattern?
     [$.required_parameter, $.binding_identifier_or_pattern]
+
+    // # TODO: Revisit this
+    // binding identifiers can be comma separated in an ambient binding list.
+    // property_name can be comma separated in an enum body
+    // [$.binding_identifier, $.property_name]
   ],
 
   rules: {
