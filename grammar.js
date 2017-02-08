@@ -217,12 +217,10 @@ module.exports = grammar({
       $.required_parameter_list,
       $.optional_parameter_list,
       $.rest_parameter,
-      seq($.required_parameter_list, ',', $.optional_parameter_list),
-      seq($.required_parameter_list, ',', $.rest_parameter),
-      seq($.required_parameter_list, ',', $.optional_parameter_list, ',', $.rest_parameter)
+      seq($.required_parameter_list, ',', choice($.optional_parameter_list, $.rest_parameter, seq($.optional_parameter_list, ',', $.rest_parameter)))
     ),
 
-    required_parameter_list: $ => commaSep1($.required_parameter),
+    required_parameter_list: $ => prec.right(commaSep1($.required_parameter)),
 
     required_parameter: $ => choice(
       seq(
@@ -243,7 +241,7 @@ module.exports = grammar({
       $.binding_pattern
     ),
 
-    optional_parameter_list: $ => commaSep1($.optional_parameter),
+    optional_parameter_list: $ => prec.right(commaSep1($.optional_parameter)),
 
     optional_parameter: $ => choice(
       seq(
