@@ -7,9 +7,8 @@ enum TokenType {
 
 void *tree_sitter_javascript_external_scanner_create() { return NULL; }
 void tree_sitter_javascript_external_scanner_destroy(void *payload) {}
-void tree_sitter_javascript_external_scanner_reset(void *payload) {}
-bool tree_sitter_javascript_external_scanner_serialize(void *payload, TSExternalTokenState state) { return true; }
-void tree_sitter_javascript_external_scanner_deserialize(void *payload, TSExternalTokenState state) {}
+unsigned tree_sitter_javascript_external_scanner_serialize(void *payload, char *buffer) { return 0; }
+void tree_sitter_javascript_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {}
 
 static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
 
