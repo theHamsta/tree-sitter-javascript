@@ -44,6 +44,8 @@ Template strings
 
 `\ `;
 
+`${parsed.protocol}//${parsed.hostname}`;
+
 `The command \`git ${args.join(' ')}\` exited with an unexpected code: ${exitCode}. The caller should either handle this error, or expect that exit code.`
 
 ----

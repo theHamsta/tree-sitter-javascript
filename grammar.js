@@ -5,6 +5,7 @@ const PREC = {
   ASSIGN: 0,
   OBJECT: 1,
   TERNARY: 1,
+  TEMPLATE_CHARS: 2,
   OR: 2,
   AND: 3,
   PLUS: 4,
@@ -689,17 +690,17 @@ module.exports = grammar({
       '`'
     ),
 
-    _template_chars: $ => token(choice(
+    _template_chars: $ => token(prec(PREC.TEMPLATE_CHARS, choice(
       repeat1(choice(
-        /[^`\$]/,
+        /[^`\\$]/,
         /\$[^{`$]/,
         /\\[`$]/
       )),
       '$'
-    )),
+    ))),
 
     template_substitution: $ => seq(
-      '${',
+      token(prec(PREC.TEMPLATE_CHARS, '${')),
       $._expressions,
       '}'
     ),
