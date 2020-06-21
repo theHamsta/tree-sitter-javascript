@@ -1564,7 +1564,7 @@
           "named": true
         },
         {
-          "type": "jsx_text",
+          "type": "jsxtext",
           "named": true
         }
       ]
@@ -1614,7 +1614,7 @@
           "named": true
         },
         {
-          "type": "jsx_text",
+          "type": "jsxtext",
           "named": true
         }
       ]
@@ -3089,7 +3089,7 @@
     "named": false
   },
   {
-    "type": "jsx_text",
+    "type": "jsxtext",
     "named": true
   },
   {

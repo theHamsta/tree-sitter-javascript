@@ -468,7 +468,7 @@ module.exports = grammar({
 
     jsx_fragment: $ => seq('<', '>', repeat($._jsx_child), '<', '/', '>'),
 
-    jsx_text: $ => /[^{}<>]+/,
+    jsxtext: $ => /[^{}<>]+/,
 
     jsx_expression: $ => seq(
       '{',
@@ -481,7 +481,7 @@ module.exports = grammar({
     ),
 
     _jsx_child: $ => choice(
-      $.jsx_text,
+      $.jsxtext,
       $._jsx_element,
       $.jsx_expression
     ),

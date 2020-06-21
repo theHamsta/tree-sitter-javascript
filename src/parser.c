@@ -60,7 +60,7 @@ enum {
   anon_sym_LT = 42,
   anon_sym_GT = 43,
   anon_sym_SLASH = 44,
-  sym_jsx_text = 45,
+  sym_jsxtext = 45,
   sym_jsx_identifier = 46,
   anon_sym_DOT = 47,
   anon_sym_class = 48,
@@ -296,7 +296,7 @@ static const char *ts_symbol_names[] = {
   [anon_sym_LT] = "<",
   [anon_sym_GT] = ">",
   [anon_sym_SLASH] = "/",
-  [sym_jsx_text] = "jsx_text",
+  [sym_jsxtext] = "jsxtext",
   [sym_jsx_identifier] = "identifier",
   [anon_sym_DOT] = ".",
   [anon_sym_class] = "class",
@@ -532,7 +532,7 @@ static TSSymbol ts_symbol_map[] = {
   [anon_sym_LT] = anon_sym_LT,
   [anon_sym_GT] = anon_sym_GT,
   [anon_sym_SLASH] = anon_sym_SLASH,
-  [sym_jsx_text] = sym_jsx_text,
+  [sym_jsxtext] = sym_jsxtext,
   [sym_jsx_identifier] = sym_identifier,
   [anon_sym_DOT] = anon_sym_DOT,
   [anon_sym_class] = anon_sym_class,
@@ -903,7 +903,7 @@ static const TSSymbolMetadata ts_symbol_metadata[] = {
     .visible = true,
     .named = false,
   },
-  [sym_jsx_text] = {
+  [sym_jsxtext] = {
     .visible = true,
     .named = true,
   },
@@ -2170,6 +2170,21 @@ static TSSymbol ts_alias_sequences[107][MAX_ALIAS_SEQUENCE_LENGTH] = {
   },
 };
 
+static inline bool sym_identifier_character_set_1(int32_t lookahead) {
+  return
+    lookahead == 0 ||
+    (0 <= lookahead && lookahead <= '#') ||
+    ('%' <= lookahead && lookahead <= '/') ||
+    (':' <= lookahead && lookahead <= '@') ||
+    ('[' <= lookahead && lookahead <= '^') ||
+    lookahead == '`' ||
+    ('{' <= lookahead && lookahead <= '~') ||
+    lookahead == 160 ||
+    lookahead == 8203 ||
+    lookahead == 8288 ||
+    lookahead == 65279;
+}
+
 static bool ts_lex(TSLexer *lexer, TSStateId state) {
   START_LEXER();
   eof = lexer->eof(lexer);
@@ -2953,7 +2968,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       if (lookahead == '=') ADVANCE(99);
       END_STATE();
     case 86:
-      ACCEPT_TOKEN(sym_jsx_text);
+      ACCEPT_TOKEN(sym_jsxtext);
       if (lookahead == '*') ADVANCE(88);
       if (lookahead == '/') ADVANCE(165);
       if (lookahead != 0 &&
@@ -2963,7 +2978,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead != '}') ADVANCE(90);
       END_STATE();
     case 87:
-      ACCEPT_TOKEN(sym_jsx_text);
+      ACCEPT_TOKEN(sym_jsxtext);
       if (lookahead == '*') ADVANCE(87);
       if (lookahead == '/') ADVANCE(164);
       if (lookahead == '<' ||
@@ -2973,7 +2988,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       if (lookahead != 0) ADVANCE(88);
       END_STATE();
     case 88:
-      ACCEPT_TOKEN(sym_jsx_text);
+      ACCEPT_TOKEN(sym_jsxtext);
       if (lookahead == '*') ADVANCE(87);
       if (lookahead == '<' ||
           lookahead == '>' ||
@@ -2982,7 +2997,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       if (lookahead != 0) ADVANCE(88);
       END_STATE();
     case 89:
-      ACCEPT_TOKEN(sym_jsx_text);
+      ACCEPT_TOKEN(sym_jsxtext);
       if (lookahead == '/') ADVANCE(86);
       if (lookahead == '\t' ||
           lookahead == '\n' ||
@@ -2999,7 +3014,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead != '}') ADVANCE(90);
       END_STATE();
     case 90:
-      ACCEPT_TOKEN(sym_jsx_text);
+      ACCEPT_TOKEN(sym_jsxtext);
       if (lookahead != 0 &&
           lookahead != '<' &&
           lookahead != '>' &&
@@ -3320,17 +3335,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
     case 161:
       ACCEPT_TOKEN(sym_escape_sequence);
       if (lookahead == '\\') ADVANCE(27);
-      if (lookahead != 0 &&
-          (lookahead < 0 || '#' < lookahead) &&
-          (lookahead < '%' || '/' < lookahead) &&
-          (lookahead < ':' || '@' < lookahead) &&
-          (lookahead < '[' || '^' < lookahead) &&
-          lookahead != '`' &&
-          (lookahead < '{' || '~' < lookahead) &&
-          lookahead != 160 &&
-          lookahead != 8203 &&
-          lookahead != 8288 &&
-          lookahead != 65279) ADVANCE(185);
+      if (!sym_identifier_character_set_1(lookahead)) ADVANCE(185);
       END_STATE();
     case 162:
       ACCEPT_TOKEN(sym_escape_sequence);
@@ -3514,17 +3519,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
     case 185:
       ACCEPT_TOKEN(sym_identifier);
       if (lookahead == '\\') ADVANCE(27);
-      if (lookahead != 0 &&
-          (lookahead < 0 || '#' < lookahead) &&
-          (lookahead < '%' || '/' < lookahead) &&
-          (lookahead < ':' || '@' < lookahead) &&
-          (lookahead < '[' || '^' < lookahead) &&
-          lookahead != '`' &&
-          (lookahead < '{' || '~' < lookahead) &&
-          lookahead != 160 &&
-          lookahead != 8203 &&
-          lookahead != 8288 &&
-          lookahead != 65279) ADVANCE(185);
+      if (!sym_identifier_character_set_1(lookahead)) ADVANCE(185);
       END_STATE();
     case 186:
       ACCEPT_TOKEN(anon_sym_AT);
@@ -44203,7 +44198,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2180), 1,
       anon_sym_LT,
     ACTIONS(2182), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     ACTIONS(2184), 1,
       sym_comment,
     STATE(553), 1,
@@ -44243,7 +44238,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2186), 1,
       anon_sym_LT,
     ACTIONS(2188), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     STATE(662), 1,
       sym_jsx_opening_element,
     STATE(872), 1,
@@ -44261,7 +44256,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2186), 1,
       anon_sym_LT,
     ACTIONS(2190), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     STATE(662), 1,
       sym_jsx_opening_element,
     STATE(886), 1,
@@ -44357,7 +44352,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2184), 1,
       sym_comment,
     ACTIONS(2188), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     ACTIONS(2196), 1,
       anon_sym_LT,
     STATE(662), 1,
@@ -44377,7 +44372,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2196), 1,
       anon_sym_LT,
     ACTIONS(2198), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     STATE(662), 1,
       sym_jsx_opening_element,
     STATE(729), 1,
@@ -44393,7 +44388,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2184), 1,
       sym_comment,
     ACTIONS(2188), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     ACTIONS(2200), 1,
       anon_sym_LT,
     STATE(375), 1,
@@ -44433,7 +44428,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2200), 1,
       anon_sym_LT,
     ACTIONS(2215), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     STATE(431), 1,
       sym_jsx_closing_element,
     STATE(662), 1,
@@ -44491,7 +44486,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2184), 1,
       sym_comment,
     ACTIONS(2188), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     STATE(536), 1,
       sym_jsx_closing_element,
     STATE(662), 1,
@@ -44509,7 +44504,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2222), 1,
       anon_sym_LT,
     ACTIONS(2225), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     STATE(662), 1,
       sym_jsx_opening_element,
     STATE(675), 4,
@@ -44523,7 +44518,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2184), 1,
       sym_comment,
     ACTIONS(2188), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     ACTIONS(2228), 1,
       anon_sym_LT,
     STATE(662), 1,
@@ -44541,7 +44536,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2230), 1,
       anon_sym_LT,
     ACTIONS(2232), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     STATE(662), 1,
       sym_jsx_opening_element,
     STATE(678), 4,
@@ -44555,7 +44550,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2184), 1,
       sym_comment,
     ACTIONS(2188), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     ACTIONS(2234), 1,
       anon_sym_LT,
     STATE(662), 1,
@@ -44573,7 +44568,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2236), 1,
       anon_sym_LT,
     ACTIONS(2238), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     STATE(662), 1,
       sym_jsx_opening_element,
     STATE(680), 4,
@@ -44587,7 +44582,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2184), 1,
       sym_comment,
     ACTIONS(2188), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     ACTIONS(2240), 1,
       anon_sym_LT,
     STATE(662), 1,
@@ -44605,7 +44600,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2242), 1,
       anon_sym_LT,
     ACTIONS(2244), 1,
-      sym_jsx_text,
+      sym_jsxtext,
     STATE(662), 1,
       sym_jsx_opening_element,
     STATE(676), 4,
@@ -46307,7 +46302,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2645), 3,
       anon_sym_LBRACE,
       anon_sym_LT,
-      sym_jsx_text,
+      sym_jsxtext,
   [30952] = 3,
     ACTIONS(3), 1,
       sym_comment,
@@ -46439,7 +46434,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2336), 3,
       anon_sym_LBRACE,
       anon_sym_LT,
-      sym_jsx_text,
+      sym_jsxtext,
   [31136] = 4,
     ACTIONS(3), 1,
       sym_comment,
@@ -46626,7 +46621,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(1629), 3,
       anon_sym_LBRACE,
       anon_sym_LT,
-      sym_jsx_text,
+      sym_jsxtext,
   [31400] = 4,
     ACTIONS(3), 1,
       sym_comment,
@@ -46642,14 +46637,14 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(1673), 3,
       anon_sym_LBRACE,
       anon_sym_LT,
-      sym_jsx_text,
+      sym_jsxtext,
   [31422] = 2,
     ACTIONS(2184), 1,
       sym_comment,
     ACTIONS(2718), 3,
       anon_sym_LBRACE,
       anon_sym_LT,
-      sym_jsx_text,
+      sym_jsxtext,
   [31431] = 4,
     ACTIONS(3), 1,
       sym_comment,
@@ -46665,14 +46660,14 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(1739), 3,
       anon_sym_LBRACE,
       anon_sym_LT,
-      sym_jsx_text,
+      sym_jsxtext,
   [31453] = 2,
     ACTIONS(2184), 1,
       sym_comment,
     ACTIONS(1719), 3,
       anon_sym_LBRACE,
       anon_sym_LT,
-      sym_jsx_text,
+      sym_jsxtext,
   [31462] = 4,
     ACTIONS(3), 1,
       sym_comment,
@@ -46688,7 +46683,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(2382), 3,
       anon_sym_LBRACE,
       anon_sym_LT,
-      sym_jsx_text,
+      sym_jsxtext,
   [31484] = 4,
     ACTIONS(3), 1,
       sym_comment,
@@ -46738,7 +46733,7 @@ static uint16_t ts_small_parse_table[] = {
     ACTIONS(1701), 3,
       anon_sym_LBRACE,
       anon_sym_LT,
-      sym_jsx_text,
+      sym_jsxtext,
   [31554] = 2,
     ACTIONS(3), 1,
       sym_comment,
